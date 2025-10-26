@@ -1,0 +1,615 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AI-Library-Backend-API",
+    "description": "Backend API Document"
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "security": [{ "cookieAuth": [] }],
+  "tags": [
+    { "name": "Auth" },
+    { "name": "Account" },
+    { "name": "Borrows" },
+    { "name": "Recommendations" },
+    { "name": "Admin" }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "用户登录",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" },
+              "example": { "readerId": "PCSCS18078", "password": "PCSCS18078" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "登录成功返回用户信息",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" },
+                "example": {
+                  "message": "Login successful",
+                  "user": {
+                    "readerId": "PCSCS18078",
+                    "nickname": "Alice",
+                    "isAdmin": false
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "message": "Invalid credentials" }
+              }
+            }
+          },
+          "400": {
+            "description": "缺少参数",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "message": "readerId and password are required" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "获取当前会话用户",
+        "responses": {
+          "200": {
+            "description": "当前用户",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "注销会话",
+        "responses": {
+          "200": {
+            "description": "注销成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MessageResponse" },
+                "example": { "message": "Logged out" }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器错误",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account": {
+      "get": {
+        "tags": ["Account"],
+        "summary": "获取账号信息",
+        "responses": {
+          "200": {
+            "description": "账号信息",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "用户不存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Account"],
+        "summary": "更新账号信息",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateAccountRequest" },
+              "example": { "nickname": "新的昵称", "gender": "female" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MessageResponse" },
+                "example": { "message": "Account updated" }
+              }
+            }
+          },
+          "400": {
+            "description": "非法字段或无有效字段",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/stats": {
+      "get": {
+        "tags": ["Account"],
+        "summary": "获取账号统计信息",
+        "responses": {
+          "200": {
+            "description": "统计信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountStatsResponse"
+                },
+                "example": {
+                  "data": {
+                    "currentBorrows": 2,
+                    "totalBorrows": 12,
+                    "overdueCount": 1,
+                    "acceptedRecommendations": 3
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/password": {
+      "put": {
+        "tags": ["Account"],
+        "summary": "修改密码",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              },
+              "example": {
+                "currentPassword": "oldpass",
+                "newPassword": "newpass123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "密码修改成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MessageResponse" },
+                "example": { "message": "Password changed" }
+              }
+            }
+          },
+          "400": {
+            "description": "弱口令或当前密码错误",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "用户不存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/borrows": {
+      "get": {
+        "tags": ["Borrows"],
+        "summary": "查询借阅记录",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 }
+          },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "借阅列表",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BorrowListResponse" },
+                "example": {
+                  "data": [
+                    {
+                      "borrow_id": 1,
+                      "reader_id": "PCSCS18078",
+                      "title": "AI Basics",
+                      "author": "John"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 10,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未认证",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/recommendations": {
+      "get": {
+        "tags": ["Recommendations"],
+        "summary": "获取推荐",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "query",
+            "schema": { "type": "string", "default": "ollama" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10, "maximum": 50 }
+          },
+          { "name": "query", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "timeoutMs",
+            "in": "query",
+            "schema": { "type": "integer", "default": 500000 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "推荐结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationListResponse"
+                },
+                "example": {
+                  "recommendations": [
+                    {
+                      "title": "机器学习导论",
+                      "author": "周志华",
+                      "call_number": "TP181",
+                      "reason": "与你的借阅记录相似"
+                    }
+                  ],
+                  "message": "ok",
+                  "total": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "503": {
+            "description": "服务不可用且回退失败",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/borrows/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "管理员更新借阅状态",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateBorrowRequest"
+              },
+              "example": { "status": "returned", "return_date": "2024-10-10" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MessageResponse" },
+                "example": { "message": "Borrow status updated" }
+              }
+            }
+          },
+          "400": {
+            "description": "非法状态值",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "未认证或权限不足",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "记录不存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "connect.sid",
+        "description": "基于 express-session 的会话 Cookie 认证。请先调用 /api/auth/login 后重试"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": { "message": { "type": "string" } }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "readerId": { "type": "string" },
+          "password": { "type": "string" }
+        },
+        "required": ["readerId", "password"]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "readerId": { "type": "string" },
+          "gender": { "type": "string" },
+          "enrollYear": { "type": "integer" },
+          "readerType": { "type": "string" },
+          "department": { "type": "string" },
+          "nickname": { "type": "string" },
+          "isAdmin": { "type": "boolean" }
+        }
+      },
+      "UpdateAccountRequest": {
+        "type": "object",
+        "properties": {
+          "nickname": { "type": "string" },
+          "gender": { "type": "string" }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": { "type": "string" },
+          "newPassword": { "type": "string" }
+        },
+        "required": ["currentPassword", "newPassword"]
+      },
+      "AccountStatsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "currentBorrows": { "type": "integer" },
+              "totalBorrows": { "type": "integer" },
+              "overdueCount": { "type": "integer" },
+              "acceptedRecommendations": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "BorrowRecord": {
+        "type": "object",
+        "properties": {
+          "borrow_id": { "type": "integer" },
+          "reader_id": { "type": "string" },
+          "book_id": { "type": "integer" },
+          "title": { "type": "string" },
+          "author": { "type": "string" },
+          "call_no": { "type": "string" },
+          "borrow_date": { "type": "string", "format": "date-time" },
+          "due_date": { "type": "string", "format": "date-time" },
+          "return_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": { "type": "string" }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "totalItems": { "type": "integer" },
+          "totalPages": { "type": "integer" }
+        }
+      },
+      "BorrowListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/BorrowRecord" }
+          },
+          "pagination": { "$ref": "#/components/schemas/Pagination" }
+        }
+      },
+      "Recommendation": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "author": { "type": "string" },
+          "call_number": { "type": "string" },
+          "reason": { "type": "string" },
+          "category": { "type": "string" }
+        }
+      },
+      "RecommendationListResponse": {
+        "type": "object",
+        "properties": {
+          "recommendations": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Recommendation" }
+          },
+          "message": { "type": "string" },
+          "total": { "type": "integer" }
+        }
+      },
+      "AdminUpdateBorrowRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["borrowed", "returned", "overdue"]
+          },
+          "return_date": { "type": "string", "format": "date" }
+        },
+        "required": ["status"]
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  ai-library-backend:
+    build: .
+    container_name: ai-library-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SESSION_SECRET=${SESSION_SECRET:-secret-key}
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      - COOKIE_SAMESITE=${COOKIE_SAMESITE:-strict}
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      - ai-library-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-library-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-library_db}
+      - POSTGRES_USER=${POSTGRES_USER::-************************}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-************************}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - ai-library-network
+
+volumes:
+  postgres_data:
+
+networks:
+  ai-library-network:
+    driver: bridge

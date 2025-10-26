@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Backend API Test</title>
+    <style>
+      body {
+        font-family: system-ui, Arial;
+        margin: 20px;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+      }
+
+      section {
+        border: 1px solid #ddd;
+        padding: 12px;
+        margin-bottom: 16px;
+        border-radius: 6px;
+      }
+
+      label {
+        display: inline-block;
+        width: 120px;
+      }
+
+      input,
+      select,
+      button {
+        margin: 4px 0;
+      }
+
+      pre {
+        background: #f7f7f9;
+        padding: 10px;
+        border-radius: 6px;
+        max-height: 300px;
+        overflow: auto;
+      }
+
+      .row {
+        margin: 6px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>API Test</h1>
+    <section id="auth">
+      <h2>认证</h2>
+      <div class="row">
+        <label>Reader ID</label>
+        <input id="readerId" value="PCSCS18078" />
+      </div>
+      <div class="row">
+        <label>Password</label>
+        <input id="password" value="PCSCS18078" type="password" />
+      </div>
+      <button id="loginBtn">登录</button>
+      <button id="sessionBtn">会话检查</button>
+      <button id="logoutBtn">登出</button>
+      <pre id="authOutput"></pre>
+    </section>
+    <section id="borrows">
+      <h2>借阅列表</h2>
+      <div class="row">
+        <label>Page</label>
+        <input id="page" value="1" type="number" min="1" />
+      </div>
+      <div class="row">
+        <label>Limit</label>
+        <input id="limit" value="10" type="number" min="1" />
+      </div>
+      <div class="row">
+        <label>Search</label>
+        <input id="search" placeholder="书名/作者/索书号" />
+      </div>
+      <div class="row">
+        <label>Status</label>
+        <input id="status" placeholder="借阅中/已归还/逾期归还" />
+      </div>
+      <div class="row">
+        <label>Start Date</label>
+        <input id="startDate" type="date" />
+      </div>
+      <div class="row">
+        <label>End Date</label>
+        <input id="endDate" type="date" />
+      </div>
+      <button id="borrowsBtn">获取借阅记录</button>
+      <pre id="borrowsOutput"></pre>
+    </section>
+    <section id="account">
+      <h2>账号</h2>
+      <button id="accountGetBtn">获取账号信息</button>
+      <div class="row">
+        <label>Nickname</label>
+        <input id="nickname" />
+      </div>
+      <div class="row">
+        <label>Gender</label>
+        <input id="gender" />
+      </div>
+      <button id="accountUpdateBtn">更新账号</button>
+      <h3>修改密码</h3>
+      <div class="row">
+        <label>当前密码</label>
+        <input id="currentPassword" type="password" />
+      </div>
+      <div class="row">
+        <label>新密码</label>
+        <input id="newPassword" type="password" />
+      </div>
+      <button id="passwordUpdateBtn">修改密码</button>
+      <pre id="accountOutput"></pre>
+    </section>
+    <section id="recommendations">
+      <h2>获取推荐</h2>
+      <div class="row">
+        <label>Model</label>
+        <select id="model">
+          <option value="ollama">ollama</option>
+          <option value="gemini">gemini</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Limit</label>
+        <input id="recLimit" value="10" type="number" min="1" />
+      </div>
+      <div class="row">
+        <label>Query</label>
+        <input id="recQuery" placeholder="关键词" />
+      </div>
+      <div class="row">
+        <label>Timeout(ms)</label>
+        <input
+          id="recTimeout"
+          value="50000"
+          type="number"
+          min="1000"
+          step="500"
+        />
+      </div>
+      <button id="recBtn">获取推荐</button>
+      <pre id="recOutput"></pre>
+    </section>
+    <section id="admin">
+      <h2>管理员操作</h2>
+      <div class="row">
+        <label>Borrow ID</label>
+        <input id="borrowId" placeholder="借阅记录 ID" />
+      </div>
+      <div class="row">
+        <label>Status</label>
+        <input id="adminStatus" placeholder="borrowed/returned/overdue" />
+      </div>
+      <div class="row">
+        <label>Return Date</label>
+        <input id="returnDate" type="date" />
+      </div>
+      <button id="adminUpdateBtn">更新借阅状态</button>
+      <pre id="adminOutput"></pre>
+    </section>
+    <script src="script.js"></script>
+  </body>
+</html>
