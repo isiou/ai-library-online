@@ -12,7 +12,7 @@ AI 智能图书馆（AI-Library）主体是一个具有现代化页面的 Web �
 >
 > 测试管理员: { "user": "ROOT", "password": "rootuser" }
 >
-> 测试读者: { "user": "ROOT", "password": "rootuser" }
+> 测试读者: { "user": "PCSCS19096", "password": "PCSCS19096" }
 
 > 项目仓库地址: [Gitee](https://gitee.com/isiou/ai-library-online) 或 [Github](https://github.com/isiou/ai-library-online)
 >
